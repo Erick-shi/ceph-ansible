@@ -19,10 +19,9 @@
 - name: include create_mds_filesystems.yml
   include: create_mds_filesystems.yml
   when:
-    - not containerized_deployment
     - groups[mds_group_name] is defined
-    - "{{ groups[mds_group_name]|length > 0 }}"
-    - "{{ inventory_hostname == groups[mon_group_name] | last }}"
+    - groups[mds_group_name]|length > 0
+    - inventory_hostname == groups[mon_group_name] | last
 
 - name: include secure_cluster.yml
   include: secure_cluster.yml
