@@ -18,8 +18,9 @@ ceph-rgw0
 [clients]
 ceph-client0
 
-[nfss]
-ceph-nfs0
+# Disabled because of the SELinux issues to run it
+#[nfss]
+#ceph-nfs0
 
 [rbdmirrors]
 ceph-rbd-mirror0
