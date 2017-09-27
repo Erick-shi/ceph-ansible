@@ -1,4 +1,13 @@
 ---
+- name: resolve device link
+  command: readlink -f {{ item }}
+  changed_when: false
+  with_items: "{{ devices }}"
+  register: devices_prepare_non_col_links
+  when:
+    - not osd_auto_discovery
+    - containerized_deployment
+
 # use shell rather than docker module
 # to ensure osd disk prepare finishes before
 # starting the next task
@@ -7,21 +16,21 @@
     docker run --net=host \
     --pid=host \
     --privileged=true \
-    --name=ceph-osd-prepare-{{ ansible_hostname }}-dev{{ item.1 | regex_replace('/', '') }} \
+    --name=ceph-osd-prepare-{{ ansible_hostname }}-{{ item.1.stdout | regex_replace('/dev/', '') }} \
     -v /etc/ceph:/etc/ceph \
     -v /var/lib/ceph/:/var/lib/ceph/ \
     -v /dev:/dev \
     -v /etc/localtime:/etc/localtime:ro \
     -e CLUSTER={{ cluster }} \
     -e CEPH_DAEMON=OSD_CEPH_DISK_PREPARE \
-    -e OSD_DEVICE={{ item.1 }} \
+    -e OSD_DEVICE={{ item.1.stdout }} \
     -e OSD_JOURNAL={{ item.2 }} \
     {{ docker_env_args }} \
     {{ ceph_osd_docker_prepare_env }} \
     {{ ceph_docker_registry }}/{{ ceph_docker_image }}:{{ ceph_docker_image_tag }}
   with_together:
     - "{{ parted_results.results | default([]) }}"
-    - "{{ devices }}"
+    - "{{ devices_prepare_non_col_links.results }}"
     - "{{ dedicated_devices }}"
   when:
     - not item.0.get("skipped")
@@ -35,7 +44,7 @@
     docker run --net=host \
     --pid=host \
     --privileged=true \
-    --name=ceph-osd-prepare-{{ ansible_hostname }}-dev{{ item.1 | regex_replace('/', '') }} \
+    --name=ceph-osd-prepare-{{ ansible_hostname }}-{{ item.1 | regex_replace('/dev/', '') }} \
     -v /etc/ceph:/etc/ceph \
     -v /var/lib/ceph/:/var/lib/ceph/ \
     -v /dev:/dev \

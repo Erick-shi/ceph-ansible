@@ -28,11 +28,17 @@
     group: "root"
     mode: "0644"
 
+- name: resolve device link
+  command: readlink -f {{ item }}
+  changed_when: false
+  with_items: "{{ devices }}"
+  register: devices_links
+
 - name: systemd start osd container
   systemd:
-    name: ceph-osd@{{ item | basename }}
+    name: ceph-osd@{{ item.stdout | regex_replace('/dev/', '') }}
     state: started
     enabled: yes
     daemon_reload: yes
   changed_when: false
-  with_items: "{{ devices }}"
+  with_items: "{{ devices_links.results }}"
