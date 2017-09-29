@@ -11,7 +11,7 @@
     {{ docker_exec_cmd | default('') }} bash -c 'stat --printf=%n {{ rbd_client_admin_socket_path }}/{{ cluster }}-mon*.asok'
   changed_when: false
   failed_when: false
-  always_run: true
+  check_mode: no
   register: mon_socket_stat
 
 - name: check if the ceph mon socket is in-use
@@ -19,7 +19,7 @@
     {{ docker_exec_cmd | default('') }} bash -c 'fuser --silent {{ mon_socket_stat.stdout }}'
   changed_when: false
   failed_when: false
-  always_run: true
+  check_mode: no
   register: mon_socket
   when:
     - mon_socket_stat.rc == 0
@@ -38,7 +38,7 @@
     stat --printf=%n {{ rbd_client_admin_socket_path }}/{{ cluster }}-osd*.asok
   changed_when: false
   failed_when: false
-  always_run: true
+  check_mode: no
   register: osd_socket_stat
   when:
     - not containerized_deployment
@@ -48,7 +48,7 @@
     fuser --silent {{ osd_socket_stat.stdout }}
   changed_when: false
   failed_when: false
-  always_run: true
+  check_mode: no
   register: osd_socket
   when:
     - not containerized_deployment
@@ -74,7 +74,7 @@
     {{ docker_exec_cmd | default('') }} bash -c 'stat --printf=%n {{ rbd_client_admin_socket_path }}/{{ cluster }}-mds*.asok'
   changed_when: false
   failed_when: false
-  always_run: true
+  check_mode: no
   register: mds_socket_stat
 
 - name: check if the ceph mds socket is in-use
@@ -82,7 +82,7 @@
     {{ docker_exec_cmd | default('') }} bash -c 'fuser --silent {{ mds_socket_stat.stdout }}'
   changed_when: false
   failed_when: false
-  always_run: true
+  check_mode: no
   register: mds_socket
   when:
     - mds_socket_stat.rc == 0
@@ -107,7 +107,7 @@
     {{ docker_exec_cmd | default('') }} bash -c 'stat --printf=%n {{ rbd_client_admin_socket_path }}/{{ cluster }}-client.rgw*.asok'
   changed_when: false
   failed_when: false
-  always_run: true
+  check_mode: no
   register: rgw_socket_stat
 
 - name: check if the ceph rgw socket is in-use
@@ -115,7 +115,7 @@
     {{ docker_exec_cmd | default('') }} bash -c 'fuser --silent {{ rgw_socket_stat.stdout }}'
   changed_when: false
   failed_when: false
-  always_run: true
+  check_mode: no
   register: rgw_socket
   when:
     - rgw_socket_stat.rc == 0
@@ -140,7 +140,7 @@
     {{ docker_exec_cmd | default('') }} bash -c 'stat --printf=%n {{ rbd_client_admin_socket_path }}/{{ cluster }}-mgr*.asok'
   changed_when: false
   failed_when: false
-  always_run: true
+  check_mode: no
   register: mgr_socket_stat
 
 - name: check if the ceph mgr socket is in-use
@@ -148,7 +148,7 @@
     {{ docker_exec_cmd | default('') }} bash -c 'fuser --silent {{ mgr_socket_stat.stdout }}'
   changed_when: false
   failed_when: false
-  always_run: true
+  check_mode: no
   register: mgr_socket
   when:
     - mgr_socket_stat.rc == 0
@@ -173,7 +173,7 @@
     {{ docker_exec_cmd | default('') }} bash -c 'stat --printf=%n {{ rbd_client_admin_socket_path }}/{{ cluster }}-client.rbd-mirror*.asok'
   changed_when: false
   failed_when: false
-  always_run: true
+  check_mode: no
   register: rbd_mirror_socket_stat
 
 - name: check if the ceph rbd mirror socket is in-use
@@ -181,7 +181,7 @@
     {{ docker_exec_cmd | default('') }} bash -c 'fuser --silent {{ rbd_mirror_socket_stat.stdout }}'
   changed_when: false
   failed_when: false
-  always_run: true
+  check_mode: no
   register: rbd_mirror_socket
   when:
     - rbd_mirror_socket_stat.rc == 0
@@ -200,7 +200,7 @@
     docker exec ceph-osd-"{{ ansible_hostname }}"-"{{ item | replace('/', '') }}" bash -c 'stat --printf=%n /var/run/ceph/*.asok'
   changed_when: false
   failed_when: false
-  always_run: true
+  check_mode: no
   register: socket_osd_container_stat
   with_items: "{{ devices }}"
   when:
